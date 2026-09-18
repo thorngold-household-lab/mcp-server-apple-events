@@ -140,6 +140,7 @@ export interface CreateReminderData {
 export interface UpdateReminderData {
   id: string;
   newTitle?: string;
+  list?: string;
   notes?: string;
   url?: string;
   isCompleted?: boolean;

@@ -300,10 +300,9 @@ class ReminderRepository implements IReminderRepository {
   }
 
   async updateReminder(data: UpdateReminderData): Promise<ReminderJSON> {
-    // Cross-list moves are rejected by the handler, which shares its
-    // `findReminderById` fetch with the notes-rebuild path.
     const args = ['reminders', 'update', '--id', data.id];
     addOptionalArg(args, '--title', data.newTitle);
+    addOptionalArg(args, '--list', data.list);
     addOptionalArg(args, '--notes', data.notes);
     addOptionalArg(args, '--url', data.url);
     addOptionalArg(args, '--due', data.dueDate);

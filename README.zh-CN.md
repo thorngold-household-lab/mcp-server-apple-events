@@ -169,7 +169,7 @@ xcrun swiftc --version    # 应显示 Apple Swift version 6.3 或更高
 
 | 工具 | 操作 | 说明 |
 | --- | --- | --- |
-| `reminders_tasks` | `read`、`create`、`update`、`delete` | 优先级、标签、子任务。`startDate` 通过 `update` 设置，`create` 不可用。不支持跨列表搬移。 |
+| `reminders_tasks` | `read`、`create`、`update`、`delete` | 优先级、标签、子任务。`startDate` 通过 `update` 设置，`create` 不可用。`update` 中的 `targetList` 可将提醒事项移动到其他列表。 |
 | `reminders_subtasks` | `read`、`create`、`update`、`delete`、`toggle`、`reorder` | 存储在备注字段中（Reminders.app 中人类可读）。 |
 | `reminders_lists` | `read`、`create`、`update`、`delete` | 通过 `name` → `newName` 重命名。 |
 | `calendar_events` | `read`、`create`、`update`、`delete` | All-day 由日期格式推断。不支持跨日历搬移。`span` 限定循环事件删除范围。`attendees`（update）邀请与会者；`occurrenceDate`（delete）排除循环序列中的单次实例——两者都需要额外配置，见[与会者与单次实例](#与会者与单次实例)。 |
