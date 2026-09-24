@@ -9,10 +9,7 @@ import {
   type Reminder,
   type RemindersToolArgs,
 } from '../../types/index.js';
-import {
-  CliUserError,
-  handleAsyncOperation,
-} from '../../utils/errorHandling.js';
+import { handleAsyncOperation } from '../../utils/errorHandling.js';
 import { formatMultilineNotes } from '../../utils/helpers.js';
 import { reminderRepository } from '../../utils/reminderRepository.js';
 import {
@@ -203,10 +200,6 @@ export const handleUpdateReminder = async (
   return handleAsyncOperation(async () => {
     const validatedArgs = extractAndValidateArgs(args, UpdateReminderSchema);
 
-    // `event reminders update` cannot move a reminder between lists. Reject
-    // that up front so the user sees a clear error instead of a silently-
-    // dropped change. The cross-list-move check needs the current reminder,
-    // so coalesce it with the notes-rebuild fetch below.
     // Empty `addTags`/`removeTags` arrays are no-ops; only fetch the current
     // reminder when there's a real change to apply.
     const shouldRebuildNotes =
@@ -214,32 +207,24 @@ export const handleUpdateReminder = async (
       validatedArgs.tags !== undefined ||
       (validatedArgs.addTags?.length ?? 0) > 0 ||
       (validatedArgs.removeTags?.length ?? 0) > 0;
-    const needsListCheck = validatedArgs.targetList !== undefined;
-
     let notesToSend = validatedArgs.note;
-    if (shouldRebuildNotes || needsListCheck) {
+    if (shouldRebuildNotes) {
       const currentReminder = await reminderRepository.findReminderById(
         validatedArgs.id,
       );
-      if (needsListCheck && currentReminder.list !== validatedArgs.targetList) {
-        throw new CliUserError(
-          'Moving a reminder between lists is not supported by the underlying `event` CLI. Move it from Reminders.app, or delete and recreate the reminder in the target list.',
-        );
-      }
-      if (shouldRebuildNotes) {
-        notesToSend = rebuildNotesForUpdate(
-          currentReminder.notes,
-          validatedArgs.note,
-          validatedArgs.tags,
-          validatedArgs.addTags,
-          validatedArgs.removeTags,
-        );
-      }
+      notesToSend = rebuildNotesForUpdate(
+        currentReminder.notes,
+        validatedArgs.note,
+        validatedArgs.tags,
+        validatedArgs.addTags,
+        validatedArgs.removeTags,
+      );
     }
 
     const reminder = await reminderRepository.updateReminder({
       id: validatedArgs.id,
       newTitle: validatedArgs.title,
+      list: validatedArgs.targetList,
       notes: notesToSend,
       url: validatedArgs.url,
       isCompleted: validatedArgs.completed,

@@ -10,9 +10,7 @@
  *               set (no alarms/recurrence/locationTrigger/location/etc.).
  *   - lists    → `event reminders lists list|create|update|delete` with
  *               name→id resolution for update/delete.
- *   - guards   → cross-list moves must surface a clean `CliUserError`
- *               instead of silently dropping the change (un-completing is
- *               supported by the CLI and passes straight through).
+ *   - updates  → cross-list moves and un-completing pass through to the CLI.
  */
 
 import type { Reminder, ReminderList } from '../types/index.js';
@@ -437,6 +435,7 @@ describe('ReminderRepository (event CLI backend)', () => {
       await reminderRepository.updateReminder({
         id: 'rem-1',
         newTitle: 'New Title',
+        list: 'Personal',
         notes: 'updated notes',
         url: 'https://example.com',
         dueDate: '2024-03-26 09:00:00',
@@ -452,6 +451,8 @@ describe('ReminderRepository (event CLI backend)', () => {
         'rem-1',
         '--title',
         'New Title',
+        '--list',
+        'Personal',
         '--notes',
         'updated notes',
         '--url',

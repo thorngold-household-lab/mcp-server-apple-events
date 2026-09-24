@@ -173,7 +173,7 @@ Service-scoped tools mirror Apple Reminders and Calendar domains. All take an `a
 
 | Tool | Actions | Notes |
 | --- | --- | --- |
-| `reminders_tasks` | `read`, `create`, `update`, `delete` | Priority, tags, subtasks. `startDate` is set via `update`, not `create`; on `read` it scopes the due-date window alongside `endDate`. Cross-list moves unsupported. |
+| `reminders_tasks` | `read`, `create`, `update`, `delete` | Priority, tags, subtasks. `startDate` is set via `update`, not `create`; on `read` it scopes the due-date window alongside `endDate`. `targetList` on `update` moves a reminder between lists. |
 | `reminders_subtasks` | `read`, `create`, `update`, `delete`, `toggle`, `reorder` | Stored in the notes field (human-readable in Reminders.app). |
 | `reminders_lists` | `read`, `create`, `update`, `delete` | Rename via `name` → `newName`. |
 | `calendar_events` | `read`, `create`, `update`, `delete` | All-day inferred from date format. Cross-calendar moves unsupported. `span` scopes recurring deletes. `attendees` (update) invites addresses; `occurrenceDate` (delete) excepts one occurrence of a series — both need extra setup, see [Attendees and single occurrences](#attendees-and-single-occurrences). |

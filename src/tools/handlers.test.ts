@@ -352,13 +352,17 @@ describe('Tool Handlers', () => {
       expect(updateArgs.notes).not.toContain('[#old]');
     });
 
-    it('rejects cross-list moves (event CLI cannot honor them)', async () => {
-      mockReminderRepository.findReminderById.mockResolvedValue({
+    it('passes targetList through for cross-list moves', async () => {
+      mockReminderRepository.updateReminder.mockResolvedValue({
         id: 'rem-mv',
-        title: 'Stay put',
+        title: 'Moved',
         isCompleted: false,
-        list: 'Work',
+        list: 'Personal',
+        notes: null,
+        url: null,
+        dueDate: null,
         priority: 0,
+        locationTrigger: null,
       });
 
       const result = await handleUpdateReminder({
@@ -367,39 +371,11 @@ describe('Tool Handlers', () => {
         targetList: 'Personal',
       });
 
-      expect(result.isError).toBe(true);
-      expect(getTextContent(result.content)).toMatch(
-        /Moving a reminder between lists is not supported/,
-      );
-      expect(mockReminderRepository.updateReminder).not.toHaveBeenCalled();
-    });
-
-    it('allows a no-op same-list assignment without rejecting', async () => {
-      const reminder = {
-        id: 'rem-mv2',
-        title: 'Same',
-        isCompleted: false,
-        list: 'Work',
-        priority: 0,
-      };
-      mockReminderRepository.findReminderById.mockResolvedValue(reminder);
-      mockReminderRepository.updateReminder.mockResolvedValue({
-        ...reminder,
-        notes: null,
-        url: null,
-        dueDate: null,
-        locationTrigger: null,
-      });
-
-      const result = await handleUpdateReminder({
-        action: 'update',
-        id: 'rem-mv2',
-        targetList: 'Work',
-        title: 'Renamed',
-      });
-
       expect(result.isError).toBe(false);
-      expect(mockReminderRepository.updateReminder).toHaveBeenCalledTimes(1);
+      expect(mockReminderRepository.updateReminder).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'rem-mv', list: 'Personal' }),
+      );
+      expect(mockReminderRepository.findReminderById).not.toHaveBeenCalled();
     });
 
     it('passes `completed: false` through to un-complete (event CLI supports it)', async () => {
@@ -450,7 +426,7 @@ describe('Tool Handlers', () => {
       expect(mockReminderRepository.updateReminder).toHaveBeenCalledTimes(1);
     });
 
-    it('shares the findReminderById fetch between the list check and the notes rebuild', async () => {
+    it('fetches current reminder only once when rebuilding notes during a list move', async () => {
       const reminder = {
         id: 'rem-share',
         title: 'Shared fetch',
